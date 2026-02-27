@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "oneko",
+	"version": "${version}",
+	"name": "Oneko",
+	"description": "cat in hud",
+	"authors": [
+		"Galiano"
+	],
+	"contact": {
+		"homepage": "https://galiano.dev",
+		"sources": "https://github.com/activepass/neko",
+		"issues": "https://github.com/activepass/neko/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/neko/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [],
+		"client": [
+          "dev.galiano.neko.Oneko"
+		]
+	},
+	"mixins": [
+		{
+			"config": "neko.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.2",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
