@@ -1,5 +1,7 @@
 package dev.galiano.neko;
 
+import com.mojang.blaze3d.platform.cursor.CursorType;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -22,6 +24,8 @@ public class Oneko implements ClientModInitializer {
 
 	static int posX = SPRITE_SIZE, posY = SPRITE_SIZE;
 	static int spriteX = 3, spriteY = 3; // start idle
+
+	static final float SCALE = 1f;
 
 	@Override
 	public void onInitializeClient() {}
@@ -114,7 +118,7 @@ public class Oneko implements ClientModInitializer {
 		var diffX = posX - mouseX;
 		var diffY = posY - mouseY;
 		var distance = Math.sqrt((diffX * diffX) + (diffY * diffY));
-		if (distance < ALERT_DISTANCE) {
+		if (distance < ALERT_DISTANCE * SCALE) {
 			idle();
 			return;
 		}
@@ -147,8 +151,8 @@ public class Oneko implements ClientModInitializer {
 			case 0b1010 -> setSprite(1, b);             // NW [1, 0] [1, 1]
         };
 
-		posX -= (int) ((diffX / distance) * 10);
-		posY -= (int) ((diffY / distance) * 10);
+		posX -= (int) ((diffX / distance) * 10 * SCALE);
+		posY -= (int) ((diffY / distance) * 10 * SCALE);
 
 		posX = Math.min(Math.max(16, posX), Minecraft.getInstance().getWindow().getGuiScaledWidth() - 16);
 		posY = Math.min(Math.max(16, posY), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 16);
@@ -160,8 +164,26 @@ public class Oneko implements ClientModInitializer {
 			update_neko(mouseX, mouseY);
 		}
 
-		// graphics.pose().pushMatrix();
-		extractor.blit(RenderPipelines.GUI_TEXTURED, NEKO_TEXTURE, posX-SPRITE_CENTRE, posY-SPRITE_CENTRE, SPRITE_SIZE * spriteX, SPRITE_SIZE * spriteY, SPRITE_SIZE, SPRITE_SIZE, 256, 128);
-		// graphics.pose().popMatrix();
+		extractor.pose().pushMatrix();
+		extractor.pose().translate(-SPRITE_CENTRE * SCALE, -SPRITE_CENTRE * SCALE);
+		extractor.blit(
+			RenderPipelines.GUI_TEXTURED,
+			NEKO_TEXTURE,
+			posX,
+			posY,
+			SPRITE_SIZE * spriteX,
+			SPRITE_SIZE * spriteY,
+			Math.round(SPRITE_SIZE * SCALE),
+			Math.round(SPRITE_SIZE * SCALE),
+			SPRITE_SIZE,
+			SPRITE_SIZE,
+			256,
+			128
+		);
+		// extractor.fill(posX-1, posY-1, posX+1, posY+1, 0xFF00FF00);
+		extractor.pose().popMatrix();
+		// extractor.fill(posX-1, posY-1, posX+1, posY+1, 0xFFFF0000);
+		// var scaled_alert_dist = Math.round(ALERT_DISTANCE * SCALE);
+		// extractor.fill(posX-scaled_alert_dist, posY-scaled_alert_dist, posX+scaled_alert_dist, posY+scaled_alert_dist, 0x22AAAA00);
 	}
 }
