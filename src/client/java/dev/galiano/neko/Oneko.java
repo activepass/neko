@@ -2,7 +2,7 @@ package dev.galiano.neko;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
@@ -154,14 +154,14 @@ public class Oneko implements ClientModInitializer {
 		posY = Math.min(Math.max(16, posY), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 16);
 	}
 
-	public static void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+	public static void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float delta) {
 		if (Util.getMillis() - lastFrame > 100) {
 			lastFrame = Util.getMillis();
 			update_neko(mouseX, mouseY);
 		}
 
 		// graphics.pose().pushMatrix();
-		graphics.blit(RenderPipelines.GUI_TEXTURED, NEKO_TEXTURE, posX-SPRITE_CENTRE, posY-SPRITE_CENTRE, SPRITE_SIZE * spriteX, SPRITE_SIZE * spriteY, SPRITE_SIZE, SPRITE_SIZE, 256, 128);
+		extractor.blit(RenderPipelines.GUI_TEXTURED, NEKO_TEXTURE, posX-SPRITE_CENTRE, posY-SPRITE_CENTRE, SPRITE_SIZE * spriteX, SPRITE_SIZE * spriteY, SPRITE_SIZE, SPRITE_SIZE, 256, 128);
 		// graphics.pose().popMatrix();
 	}
 }
