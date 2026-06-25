@@ -12,9 +12,10 @@ You can customise Neko by creating a resource pack:
 ```json
 {
   // not all fields need to be set, only those you wish to change
-  "scale": 0.5, // scale neko sprite 
+  // keep in mind that sprite is already affected by mc gui scale
+  "scale": 0.5, // scale neko sprite
   "idle_interval": 30, // how often neko plays an idle animation (lower is more often)
-  // these fields are scaled by `scale`
+  // these fields are scaled by the above `scale`
   "alert_distance": 32, // the distance at which neko exits idle and chases the cursor again
   "speed": 10 // speed
 }
