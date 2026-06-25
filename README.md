@@ -9,7 +9,7 @@ You can customise Neko by creating a resource pack:
 - To use custom sprites place the sprite sheet in the pack at `assets/neko/textures/gui/oneko.png`. Make sure the png is the same size and the sprites are in the same place as in the [default](src/main/resources/assets/neko/textures/gui/oneko.png)
 - To configure, create `assets/neko/neko_config.json`. See the [default](src/main/resources/assets/neko/neko_config.json) or example below:
 
-```json
+```jsonc
 {
   // not all fields need to be set, only those you wish to change
   // keep in mind that sprite is already affected by mc gui scale
