@@ -1,12 +1,12 @@
 package dev.galiano.neko;
 
-import com.mojang.blaze3d.platform.cursor.CursorType;
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +19,16 @@ public class Oneko implements ClientModInitializer {
 	static final int SPRITE_SIZE = 32;
 	static final int SPRITE_CENTRE = SPRITE_SIZE / 2;
 
-	static final int IDLE_INTERVAL = 30;
-	static final int ALERT_DISTANCE = 48;
-
 	static int posX = SPRITE_SIZE, posY = SPRITE_SIZE;
 	static int spriteX = 3, spriteY = 3; // start idle
 
-	static final float SCALE = 1f;
+	public static final OnekoConfigManager manager = new OnekoConfigManager();
 
 	@Override
-	public void onInitializeClient() {}
+	public void onInitializeClient() {
+		ResourceLoader.get(PackType.CLIENT_RESOURCES)
+			.registerReloadListener(Identifier.fromNamespaceAndPath("neko", "data_manager"), manager);
+	}
 
 	static long lastFrame = 0;
 	static long frameTimer = 0;
@@ -59,7 +59,7 @@ public class Oneko implements ClientModInitializer {
 	static void idle() {
 		idleTimer++;
 
-		if (idleTimer > 10 && Math.floor(Math.random() * IDLE_INTERVAL) == 0 && idleAnimation == IdleAnimation.IDLE) {
+		if (idleTimer > 10 && Math.floor(Math.random() * manager.instance.idleInterval()) == 0 && idleAnimation == IdleAnimation.IDLE) {
 			ArrayList<IdleAnimation> availableIdles = new ArrayList<>(); // ehhhhhhhhh
 			availableIdles.add(IdleAnimation.SCRATCH);
 			availableIdles.add(IdleAnimation.SLEEPING);
@@ -118,7 +118,7 @@ public class Oneko implements ClientModInitializer {
 		var diffX = posX - mouseX;
 		var diffY = posY - mouseY;
 		var distance = Math.sqrt((diffX * diffX) + (diffY * diffY));
-		if (distance < ALERT_DISTANCE * SCALE) {
+		if (distance < manager.instance.alertDistance() * manager.instance.scale()) {
 			idle();
 			return;
 		}
@@ -151,8 +151,8 @@ public class Oneko implements ClientModInitializer {
 			case 0b1010 -> setSprite(1, b);             // NW [1, 0] [1, 1]
         };
 
-		posX -= (int) ((diffX / distance) * 10 * SCALE);
-		posY -= (int) ((diffY / distance) * 10 * SCALE);
+		posX -= (int) ((diffX / distance) * manager.instance.speed() * manager.instance.scale());
+		posY -= (int) ((diffY / distance) * manager.instance.speed() * manager.instance.scale());
 
 		posX = Math.min(Math.max(16, posX), Minecraft.getInstance().getWindow().getGuiScaledWidth() - 16);
 		posY = Math.min(Math.max(16, posY), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 16);
@@ -165,7 +165,7 @@ public class Oneko implements ClientModInitializer {
 		}
 
 		extractor.pose().pushMatrix();
-		extractor.pose().translate(-SPRITE_CENTRE * SCALE, -SPRITE_CENTRE * SCALE);
+		extractor.pose().translate(-SPRITE_CENTRE * manager.instance.scale(), -SPRITE_CENTRE * manager.instance.scale());
 		extractor.blit(
 			RenderPipelines.GUI_TEXTURED,
 			NEKO_TEXTURE,
@@ -173,8 +173,8 @@ public class Oneko implements ClientModInitializer {
 			posY,
 			SPRITE_SIZE * spriteX,
 			SPRITE_SIZE * spriteY,
-			Math.round(SPRITE_SIZE * SCALE),
-			Math.round(SPRITE_SIZE * SCALE),
+			Math.round(SPRITE_SIZE * manager.instance.scale()),
+			Math.round(SPRITE_SIZE * manager.instance.scale()),
 			SPRITE_SIZE,
 			SPRITE_SIZE,
 			256,
