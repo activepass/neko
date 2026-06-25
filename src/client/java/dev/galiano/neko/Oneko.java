@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Oneko implements ClientModInitializer {
 	public static Logger LOGGER = LoggerFactory.getLogger("neko");
@@ -43,7 +44,10 @@ public class Oneko implements ClientModInitializer {
 		SCRATCH_N,
 		SCRATCH_S,
 		SCRATCH_E,
-		SCRATCH_W
+		SCRATCH_W;
+
+		private static final int size = IdleAnimation.values().length;
+		public static final ArrayList<IdleAnimation> AVAILABLE = new ArrayList<>(size); // available will never be full so this should be fine
 	}
 
 	static void setSprite(int x, int y) {
@@ -60,17 +64,17 @@ public class Oneko implements ClientModInitializer {
 		idleTimer++;
 
 		if (idleTimer > 10 && Math.floor(Math.random() * manager.instance.idleInterval()) == 0 && idleAnimation == IdleAnimation.IDLE) {
-			ArrayList<IdleAnimation> availableIdles = new ArrayList<>(); // ehhhhhhhhh
-			availableIdles.add(IdleAnimation.SCRATCH);
-			availableIdles.add(IdleAnimation.SLEEPING);
+			IdleAnimation.AVAILABLE.clear();
+			IdleAnimation.AVAILABLE.add(IdleAnimation.SCRATCH);
+			IdleAnimation.AVAILABLE.add(IdleAnimation.SLEEPING);
 
+			var bound = Math.round(SPRITE_SIZE * manager.instance.scale());
 			var window = Minecraft.getInstance().getWindow();
-			if (posX < 32) availableIdles.add(IdleAnimation.SCRATCH_W);
-			if (posY < 32) availableIdles.add(IdleAnimation.SCRATCH_N);
-			if (posX > window.getGuiScaledWidth() - 32) availableIdles.add(IdleAnimation.SCRATCH_E);
-			if (posY > window.getGuiScaledHeight() - 32) availableIdles.add(IdleAnimation.SCRATCH_S);
-
-			idleAnimation = availableIdles.get((int) (Math.random() * availableIdles.size()));
+			if (posX < bound) IdleAnimation.AVAILABLE.add(IdleAnimation.SCRATCH_W);
+			if (posY < bound) IdleAnimation.AVAILABLE.add(IdleAnimation.SCRATCH_N);
+			if (posX > window.getGuiScaledWidth() - bound) IdleAnimation.AVAILABLE.add(IdleAnimation.SCRATCH_E);
+			if (posY > window.getGuiScaledHeight() - bound) IdleAnimation.AVAILABLE.add(IdleAnimation.SCRATCH_S);
+			idleAnimation = IdleAnimation.AVAILABLE.get(ThreadLocalRandom.current().nextInt(IdleAnimation.AVAILABLE.size()));
 		}
 
 		var a = idleAnimFrame % 2;
@@ -154,8 +158,9 @@ public class Oneko implements ClientModInitializer {
 		posX -= (int) ((diffX / distance) * manager.instance.speed() * manager.instance.scale());
 		posY -= (int) ((diffY / distance) * manager.instance.speed() * manager.instance.scale());
 
-		posX = Math.min(Math.max(16, posX), Minecraft.getInstance().getWindow().getGuiScaledWidth() - 16);
-		posY = Math.min(Math.max(16, posY), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 16);
+		var bound = Math.round(SPRITE_CENTRE * manager.instance.scale());
+		posX = Math.min(Math.max(bound, posX), Minecraft.getInstance().getWindow().getGuiScaledWidth() - bound);
+		posY = Math.min(Math.max(bound, posY), Minecraft.getInstance().getWindow().getGuiScaledHeight() - bound);
 	}
 
 	public static void render(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float delta) {
